@@ -49,14 +49,20 @@ struct Local
   int depth;
 };
 
+struct offset
+{
+  int brk;
+  int cont;
+};
+
 struct Compiler
 {
   struct Local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
   bool is_in_loop;
-  int break_offset[UINT8_COUNT];  
-  int break_offset_count;
+  struct offset bc_offset[UINT8_COUNT];  
+  int bc_offset_count;
 };
 
 struct Parser parser;
@@ -99,7 +105,7 @@ static void advance()
   parser.previous = parser.curr;
 
   for (;;)
-  {
+  { 
     parser.curr = scan_token();
     if (parser.curr.type != TOKEN_ERROR)
       break;
@@ -201,7 +207,7 @@ static void init_compiler(struct Compiler *compiler)
   compiler->local_count = 0;
   compiler->scope_depth = 0;
   compiler->is_in_loop = false;
-  compiler->break_offset_count = -1;
+  compiler->bc_offset_count = -1;
   current = compiler;
 }
 
@@ -219,14 +225,14 @@ static void end_compiler()
 static void begin_loop()
 {
   current->is_in_loop = true;
-  current->break_offset_count++;
-  current->break_offset[current->break_offset_count] = -1;
+  current->bc_offset_count++;
+  current->bc_offset[current->bc_offset_count].brk = -1;
 }
 
 static void end_loop()
 {
-  patch_jmp(current->break_offset[current->break_offset_count]);
-  current->break_offset_count--;
+  patch_jmp(current->bc_offset[current->bc_offset_count].brk);
+  current->bc_offset_count--;
   current->is_in_loop = false;
 }
 
@@ -685,7 +691,7 @@ static void break_stmt()
   consume(TOKEN_SEMICOLON, "Expected ';' after 'break'.");
   if (current->is_in_loop == false)
     error("'break' can only be placed inside a loop.");
-  current->break_offset[current->break_offset_count] = emit_jmp(OP_JMP);
+  current->bc_offset[current->bc_offset_count].brk = emit_jmp(OP_JMP);
 }
 
 static void if_stmt()

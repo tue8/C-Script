@@ -93,7 +93,9 @@ int disassem_instruction(struct Chunk *chunk, int offset)
       return jmp_instruction("OP_JNT", 1, chunk, offset);
     case OP_RETURN:
       return simple_instruction("OP_RETURN", offset);
-    case OP_GETGLOBAL:
+   case OP_SETGLOBAL:
+      return constant_instruction("OP_SETGLOBAL", chunk, offset);
+   case OP_GETGLOBAL:
       return constant_instruction("OP_GETGLOBAL", chunk, offset);
     case OP_DEFINEGLOBAL:
       return constant_instruction("OP_DEFINEGLOBAL", chunk, offset); 
