@@ -156,7 +156,16 @@ static enum TokenType identifier_type()
   {
     case 'a': return check_keyword(1, 2, "nd", TOKEN_AND);
     case 'b': return check_keyword(1, 4, "reak", TOKEN_BREAK);
-    case 'c': return check_keyword(1, 4, "lass", TOKEN_CLASS);
+    case 'c':
+      if (scanner.curr - scanner.start > 1)
+      {
+        switch (*(scanner.start + 1))
+        {
+          case 'l': return check_keyword(2, 3, "ass", TOKEN_CLASS);
+          case 'o': return check_keyword(2, 6, "ntinue", TOKEN_CONTINUE);
+        }
+      }
+      break;
     case 'e': return check_keyword(1, 3, "lse", TOKEN_ELSE);
     case 'f':
       if (scanner.curr - scanner.start > 1)
@@ -166,9 +175,9 @@ static enum TokenType identifier_type()
           case 'a': return check_keyword(2, 3, "lse", TOKEN_FALSE);
           case 'o': return check_keyword(2, 1, "r", TOKEN_FOR);
           case 'u': return check_keyword(2, 1, "n", TOKEN_FUN);
-              }
-          }
-            break;
+        }
+      }
+      break;
     case 'i': return check_keyword(1, 1, "f", TOKEN_IF);
     case 'n': return check_keyword(1, 2, "il", TOKEN_NIL);
     case 'o': return check_keyword(1, 1, "r", TOKEN_OR);
@@ -182,9 +191,9 @@ static enum TokenType identifier_type()
         {
           case 'h': return check_keyword(2, 2, "is", TOKEN_THIS);
           case 'r': return check_keyword(2, 2, "ue", TOKEN_TRUE);
-              }
-          }
-            break;
+        }
+      }
+      break;
     case 'v': return check_keyword(1, 2, "ar", TOKEN_VAR);
     case 'w': return check_keyword(1, 4, "hile", TOKEN_WHILE);
   }

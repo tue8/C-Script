@@ -227,6 +227,7 @@ static void begin_loop()
   current->is_in_loop = true;
   current->bc_offset_count++;
   current->bc_offset[current->bc_offset_count].brk = -1;
+  current->bc_offset[current->bc_offset_count].cont = -1;
 }
 
 static void end_loop()
@@ -615,6 +616,7 @@ static void while_stmt()
   begin_loop();
   /* constantly check for condition */
   int loop_start = curr_chunk()->count;
+  current->bc_offset[current->bc_offset_count].cont = loop_start; 
   consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
@@ -675,6 +677,7 @@ static void for_stmt()
     loop_start = increment_start;
     patch_jmp(body_jmp); 
   }
+  current->bc_offset[current->bc_offset_count].cont = loop_start; 
   statement();
   emit_jl(loop_start);
   if (exit_jmp != -1)
@@ -692,6 +695,14 @@ static void break_stmt()
   if (current->is_in_loop == false)
     error("'break' can only be placed inside a loop.");
   current->bc_offset[current->bc_offset_count].brk = emit_jmp(OP_JMP);
+}
+
+static void continue_stmt()
+{ 
+  consume(TOKEN_SEMICOLON, "Expected ';' after 'continue'.");
+  if (current->is_in_loop == false)
+    error("'continue' can only be placed inside a loop.");
+  emit_jl(current->bc_offset[current->bc_offset_count].cont);
 }
 
 static void if_stmt()
@@ -745,6 +756,8 @@ static void statement()
     for_stmt();
   else if (match(TOKEN_BREAK))
     break_stmt();
+  else if (match(TOKEN_CONTINUE))
+    continue_stmt();
   else
     expression_stmt();
 }
