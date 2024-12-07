@@ -65,21 +65,7 @@ static void run_file(const char *path)
 int main(int argc, char **argv)
 {
   init_vm();
-
-//  struct Table table;
-//  init_table(&table);
-//  Value nigga;
-//  Value niggermuck;
-//  table_set(&table, copy_str("nigga", 5), NUMBER_VAL(0.5));
-//  table_set(&table, copy_str("niggermuck", 10), NUMBER_VAL(8));
-//  table_get(&table, copy_str("nigga", 5), &nigga); 
-//  table_get(&table, copy_str("niggermuck", 10), &niggermuck); 
-//  print_value(nigga);
-//  puts("\n");
-//  print_value(niggermuck);
-//  puts("\n");
-//  free_table(&table); 
-
+  
   if (argc == 1)
     repl();
   else if (argc == 2)
